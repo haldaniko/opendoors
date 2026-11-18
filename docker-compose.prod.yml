@@ -82,6 +82,7 @@ services:
 
   wordpress:
     image: ${WORDPRESS_IMAGE:-opendoors-wordpress:latest}
+    pull_policy: build
     build:
       context: .
       args:
@@ -107,6 +108,7 @@ services:
 
   cron:
     image: ${WORDPRESS_IMAGE:-opendoors-wordpress:latest}
+    pull_policy: never
     restart: always
     environment: *wordpress-environment
     command: ["/bin/sh", "-c", "while true; do curl --fail --silent --show-error --max-time 50 'http://wordpress/wp-cron.php?doing_wp_cron' >/dev/null || true; sleep 60; done"]
