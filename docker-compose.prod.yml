@@ -132,5 +132,11 @@ volumes:
 
 networks:
   frontend:
+    ipam:
+      config:
+        - subnet: ${OPENDOORS_FRONTEND_SUBNET:-10.254.20.0/24}
   backend:
     internal: true
+    ipam:
+      config:
+        - subnet: ${OPENDOORS_BACKEND_SUBNET:-10.254.21.0/24}
