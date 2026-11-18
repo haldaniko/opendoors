@@ -115,7 +115,8 @@ node_modules
 *.wmv
 *.avi
 
-# The public site media snapshot is intentionally versioned through Git LFS.
+# The media snapshot and requested database export are versioned through Git LFS.
 !.gitattributes
+!opendoors.sql.gz
 !wp-content/uploads/
 !wp-content/uploads/**
