@@ -1,0 +1,86 @@
+{% if gallery %}
+	<div class="project-carousel">
+		<div id="{{ carousel_id }}" class="carousel slide mb-3" data-bs-interval="false" data-carousel-id="{{ carousel_id }}" data-bs-touch="true">
+			<div class="carousel-inner">
+				{% for slide in gallery %}
+					<div class="carousel-item{% if loop.first %} active{% endif %}">
+						{% if slide.type == 'image' %}
+							<img src="{{ slide.url|e }}" class="d-block w-100" alt="{{ slide.alt|e }}">
+							{% if slide.caption or slide.description %}
+								<div class="gallery-description fw-bold fs-6 text-center">
+									{% if slide.caption %}
+										<div class="gallery-caption">{{ slide.caption }}</div>
+									{% endif %}
+									{% if slide.description %}
+										<div class="gallery-text">{{ slide.description }}</div>
+									{% endif %}
+								</div>
+							{% endif %}
+
+						{% elseif slide.type == 'embed' %}
+							<div class="embed-wrapper ratio ratio-16x9">
+								{{ slide.content|raw }}
+							</div>
+						{% elseif slide.type == 'video' %}
+							<div class="ratio ratio-16x9">
+								<iframe src="{{ slide.url|e }}" width="100%" height="100%" allow="autoplay" frameborder="0" allowfullscreen loading="lazy"></iframe>
+							</div>
+						{% endif %}
+					</div>
+				{% endfor %}
+			</div>
+
+			{% if gallery|length > 1 %}
+				<button class="carousel-control-prev" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="prev">
+					<span>
+						<svg width="40" height="40" viewbox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+							<circle cx="20" cy="20" r="20" fill="#fff"/>
+							<path d="M27.5 19.3h-13l2.8-3c.3-.3.3-.7 0-1-.3-.3-.6-.3-.9 0l-4 4.2-.2.2v.6c0 .1.1.2.2.2l4 4.2c.3.4.6.4.9 0 .3-.3.3-.7 0-1l-2.8-3h13c.2 0 .4-.1.5-.2s.2-.3.2-.5-.1-.4-.2-.5c-.1-.1-.3-.2-.5-.2z" fill="#013b87"/>
+						</svg>
+					</span>
+					<span class="visually-hidden">Previous</span>
+				</button>
+
+				<button class="carousel-control-next" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="next">
+					<span>
+						<svg width="40" height="40" viewbox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+							<circle cx="20" cy="20" r="20" fill="#fff"/>
+							<path d="M12.5 19.3h13l-2.8-3c-.3-.3-.3-.7 0-1 .3-.3.6-.3.9 0l4 4.2.2.2v.6c0 .1-.1.2-.2.2l-4 4.2c-.3.4-.6.4-.9 0-.3-.3-.3-.7 0-1l2.8-3h-13c-.2 0-.4-.1-.5-.2s-.2-.3-.2-.5.1-.4.2-.5c.1-.1.3-.2.5-.2z" fill="#013b87"/>
+						</svg>
+					</span>
+					<span class="visually-hidden">Next</span>
+				</button>
+			{% endif %}
+		</div>
+
+		<!-- Thumbnails -->
+		{% set image_slides = gallery|filter(slide => slide.type == 'image') %}
+
+		{% if image_slides|length > 0 %}
+			<div class="d-flex justify-content-between w-100">
+				{% if image_slides|length > 3 %}
+					<button class="thumb-arrow prev" type="button" aria-label="Previous thumbnails">
+						<svg width="10" height="18" viewbox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M9 1L1 8.57895L9 17" stroke="black" stroke-opacity="0.7"/>
+						</svg>
+					</button>
+				{% endif %}
+				<div class="thumbnails-wrapper d-flex justify-content-between w-100">
+					<div class="d-flex gap-1 thumbnails-images">
+						{% for slide in image_slides %}
+							<img src="{{ slide.thumbnail|e }}" data-bs-target="#{{ carousel_id }}" data-bs-slide-to="{{ loop.index0 }}" alt="Slide Thumbnail" loading="lazy" class="gallery-thumb">
+						{% endfor %}
+					</div>
+				</div>
+				{% if image_slides|length > 3 %}
+					<button class="thumb-arrow next" type="button" aria-label="Next thumbnails">
+						<svg width="9" height="18" viewbox="0 0 9 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M1 1L8 8.57895L1 17" stroke="black" stroke-opacity="0.7"/>
+						</svg>
+					</button>
+				{% endif %}
+			</div>
+
+		{% endif %}
+	</div>
+{% endif %}

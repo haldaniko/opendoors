@@ -1,0 +1,39 @@
+{% if media.file is not empty or media.embed_content.embed_content_link is not empty or media.review_instructions is not empty %}
+	<div class="wrapper-embed-content mt-3 d-flex flex-column flex-lg-row gap-2 gap-md-2">
+		{% if media.embed_content.review_instructions is not empty %}
+			<div class="wrapper-button w-100 p-2 rounded">
+				<a href="{{ media.embed_content.review_instructions }}" target="_blank" rel="noopener" class="w-100 fs-6 text-light d-block">
+					Review instructions
+
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" class="bi bi-arrow-right" viewbox="0 0 16 16">
+						<path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+					</svg>
+				</a>
+			</div>
+		{% endif %}
+
+		{% if media.embed_content.embed_content_link is not empty %}
+			<div class="wrapper-button w-100 p-2 rounded">
+				<a href="{{ media.embed_content.embed_content_link }}" target="_blank" rel="noopener" class="w-100 fs-6 text-light d-block">
+					View presentation
+
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" class="bi bi-arrow-right" viewbox="0 0 16 16">
+						<path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+					</svg>
+				</a>
+			</div>
+		{% endif %}
+
+		{% if media.file is not empty %}
+			<div class="wrapper-button w-100 p-2 rounded">
+				<a href="{{ media.file}}" target="_blank" rel="noopener" class="w-100 fs-6 text-light d-block">
+					View file
+
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fff" class="bi bi-arrow-right" viewbox="0 0 16 16">
+						<path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+					</svg>
+				</a>
+			</div>
+		{% endif %}
+	</div>
+{% endif %}

@@ -1,0 +1,134 @@
+x-wordpress-environment: &wordpress-environment
+  ENV: production
+  DB_SERVER: db:3306
+  DB_DATABASE: ${DB_DATABASE}
+  DB_USER: ${DB_USER}
+  DB_PASSWORD: ${DB_PASSWORD}
+  DB_TABLE_PREFIX: ${DB_TABLE_PREFIX}
+  AUTH_KEY: ${AUTH_KEY}
+  SECURE_AUTH_KEY: ${SECURE_AUTH_KEY}
+  LOGGED_IN_KEY: ${LOGGED_IN_KEY}
+  NONCE_KEY: ${NONCE_KEY}
+  AUTH_SALT: ${AUTH_SALT}
+  SECURE_AUTH_SALT: ${SECURE_AUTH_SALT}
+  LOGGED_IN_SALT: ${LOGGED_IN_SALT}
+  NONCE_SALT: ${NONCE_SALT}
+  WP_HOME: ${PROD_WP_URL}
+  WP_SITEURL: ${PROD_WP_URL}
+  WP_MEMORY_LIMIT: ${WP_MEMORY_LIMIT:-256M}
+  WP_POST_REVISIONS: ${WP_POST_REVISIONS:-10}
+  WP_AUTOSAVE_INTERVAL: ${WP_AUTOSAVE_INTERVAL:-60}
+  WP_EMPTY_TRASH_DAYS: ${WP_EMPTY_TRASH_DAYS:-30}
+  WP_DEBUG: "false"
+  WP_DEBUG_LOG: "false"
+  WP_DEBUG_DISPLAY: "false"
+  WP_DISALLOW_FILE_MODS: "true"
+  WP_AUTOMATIC_UPDATER_DISABLED: "true"
+  WP_AUTO_UPDATE_CORE: "false"
+  FORCE_SSL_ADMIN: "true"
+  DISABLE_WP_CRON: "true"
+  WP_REDIS_HOST: redis
+  WP_REDIS_PORT: "6379"
+  WP_REDIS_PREFIX: ${WP_REDIS_PREFIX:-opendoors:}
+  WP_REDIS_CLIENT: phpredis
+  WP_REDIS_DATABASE: "0"
+  WP_REDIS_TIMEOUT: "1"
+  WP_REDIS_READ_TIMEOUT: "1"
+  WP_REDIS_PERSISTENT: "true"
+  WP_REDIS_DISABLED: "false"
+  OPCACHE_VALIDATE_TIMESTAMPS: "0"
+  OPCACHE_REVALIDATE_FREQ: "0"
+  REALPATH_CACHE_TTL: "600"
+  RECOVERY_MODE_EMAIL: ${RECOVERY_MODE_EMAIL:-admin@example.com}
+
+services:
+  db:
+    image: ${MYSQL_IMAGE:-mysql:8.0.41}
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - type: bind
+        source: ${DB_SEED_FILE:-./opendoors.sql.gz}
+        target: /docker-entrypoint-initdb.d/001-opendoors.sql.gz
+        read_only: true
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping --host=127.0.0.1 --user=root --password=$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      # Allow a slow first import to finish before health failures are counted.
+      start_period: 60m
+    networks:
+      - backend
+
+  redis:
+    image: ${REDIS_IMAGE:-redis:7.4-alpine}
+    restart: always
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "${REDIS_MAXMEMORY:-256mb}", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks:
+      - backend
+
+  wordpress:
+    image: ${WORDPRESS_IMAGE:-opendoors-wordpress:latest}
+    build:
+      context: .
+      args:
+        WORDPRESS_BASE_IMAGE: ${WORDPRESS_BASE_IMAGE:-wordpress:php8.3-apache}
+    restart: always
+    environment: *wordpress-environment
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "${PROD_BIND_IP:-127.0.0.1}:${PROD_PORT:-8080}:80"
+    volumes:
+      - type: bind
+        source: ./wp-content/uploads
+        target: /var/www/html/wp-content/uploads
+    tmpfs:
+      - /tmp
+    networks:
+      - frontend
+      - backend
+
+  cron:
+    image: ${WORDPRESS_IMAGE:-opendoors-wordpress:latest}
+    restart: always
+    environment: *wordpress-environment
+    command: ["/bin/sh", "-c", "while true; do curl --fail --silent --show-error --max-time 50 'http://wordpress/wp-cron.php?doing_wp_cron' >/dev/null || true; sleep 60; done"]
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./wp-content/uploads
+        target: /var/www/html/wp-content/uploads
+    tmpfs:
+      - /tmp
+    healthcheck:
+      disable: true
+    networks:
+      - backend
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  frontend:
+  backend:
+    internal: true

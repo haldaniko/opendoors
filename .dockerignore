@@ -1,0 +1,16 @@
+.git
+.gitignore
+.idea
+.vscode
+.env
+.env.*
+Dockerfile
+docker-compose*.yml
+README.md
+*.sql
+*.sql.gz
+*.log
+wp-content/cache
+wp-content/upgrade
+wp-content/uploads/*
+wp-content/debug.log

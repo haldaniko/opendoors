@@ -1,0 +1,24 @@
+{% if gallery is defined and gallery|length > 0 %}
+	{% set slide = gallery[0] %}
+
+	<div class="wrapper-featured-image d-flex justify-content-center w-100">
+		{% if slide.type == 'image' %}
+			<img src="{{ slide.url|e }}" alt="{{ project.title }}">
+		{% elseif slide.type == 'embed' %}
+			<div class="embed-wrapper ratio ratio-16x9 w-100">
+				{{ slide.content|raw }}
+			</div>
+		{% elseif slide.type == 'file' %}
+			<div class="file-wrapper ratio ratio-16x9 w-100">
+				<iframe src="{{ slide.url|e }}#toolbar=0&navpanes=0&scrollbar=0"
+						width="100%" height="100%" frameborder="0">
+				</iframe>
+			</div>
+		{% endif %}
+	</div>
+
+{% elseif project.thumbnail %}
+	<div class="wrapper-featured-image">
+		<img src="{{ project.thumbnail.src('large') }}" alt="{{ project.title }}">
+	</div>
+{% endif %}

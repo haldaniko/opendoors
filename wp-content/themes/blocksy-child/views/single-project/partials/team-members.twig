@@ -1,0 +1,35 @@
+{% if team_members %}
+	<div class="wrapper-team-members d-flex flex-column align-items-center">
+		{% for member in team_members %}
+			{% if member.image or member.title or member.description %}
+				<div class="team-member d-flex flex-column flex-md-row align-items-center align-items-md-start">
+
+					{% if member.image %}
+						<div class="flex-shrink-0">
+							<img src="{{ member.image }}" alt="{{ member.title ? member.title|e : 'Team member' }}" class="rounded-circle"/>
+						</div>
+					{% endif %}
+
+					<div class="content">
+						{% if member.title %}
+							<h3 class="title mb-3">
+								{{ member.title|e }}
+							</h3>
+						{% endif %}
+
+						{% if member.description %}
+							<div class="wrapper-description">
+								<p class="description mb-2">
+									{{ member.description|e }}
+								</p>
+								<button type="button" class="btn btn-link p-0 show-more">
+									Show more
+								</button>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+{% endif %}
