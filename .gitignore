@@ -43,7 +43,8 @@ wp-content/uploads/.gitkeep
 wp-content/plugins/wp-rocket/cache.json
 wp-content/cache/*
 wp-content/cache/supercache/*
-wp-content/mu-plugins/
+wp-content/mu-plugins/*
+!wp-content/mu-plugins/opendoors-content-migrations.php
 wp-content/plugins/wp-dbmanager/
 wp-content/plugins/debug-bar/
 wp-content/plugins/debug-bar-console/
