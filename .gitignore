@@ -72,8 +72,8 @@ wp-content/mysql.sql
 *.sublime-workspace
 
 ### Node ###
-# Logs
-logs
+# Root-level Node.js logs. Keep source directories named "Logs" trackable.
+/logs/
 
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
