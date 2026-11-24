@@ -8,6 +8,37 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
+const OPENDOORS_OLD_WHAT_WE_DO_URL = 'https://opendoors.center/what-we-do/';
+const OPENDOORS_PROJECTS_URL = 'https://opendoors.center/projects/';
+
+/**
+ * Keep the homepage CTA correct even if an older post revision or cached
+ * database value is restored later.
+ */
+add_filter('render_block', static function (string $block_content): string {
+	if (false === strpos($block_content, '>What we do</span>')) {
+		return $block_content;
+	}
+
+	return str_replace(
+		OPENDOORS_OLD_WHAT_WE_DO_URL,
+		OPENDOORS_PROJECTS_URL,
+		$block_content
+	);
+});
+
+/**
+ * Preserve existing bookmarks and stale cached copies of the old CTA.
+ */
+add_action('template_redirect', static function (): void {
+	if ('/what-we-do/' !== wp_parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH)) {
+		return;
+	}
+
+	wp_safe_redirect(home_url('/projects/'), 301, 'OpenDoors');
+	exit;
+}, 0);
+
 add_action('init', static function (): void {
 	global $wpdb;
 
@@ -17,8 +48,8 @@ add_action('init', static function (): void {
 		return;
 	}
 
-	$old_fragment = 'href="https://opendoors.center/what-we-do/"><span class="has-text-color stk-button__inner-text">What we do</span>';
-	$new_fragment = 'href="https://opendoors.center/projects/"><span class="has-text-color stk-button__inner-text">What we do</span>';
+	$old_fragment = 'href="' . OPENDOORS_OLD_WHAT_WE_DO_URL . '"><span class="has-text-color stk-button__inner-text">What we do</span>';
+	$new_fragment = 'href="' . OPENDOORS_PROJECTS_URL . '"><span class="has-text-color stk-button__inner-text">What we do</span>';
 	$matching_ids = $wpdb->get_col(
 		$wpdb->prepare(
 			"SELECT ID FROM {$wpdb->posts} WHERE post_content LIKE %s",
